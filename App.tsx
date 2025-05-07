@@ -1,9 +1,40 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function App() {
   const [count, setCount] = useState(0)
+
+  // Load count from storage once when the app starts
+  useEffect(() => {
+    const loadCount = async() => {
+      try{
+        const saved = await AsyncStorage.getItem('@counter_value')
+        if(saved !== null){
+          setCount(parseInt(saved, 10))
+        }
+      }
+      catch(e){
+        console.error('Failed to load count.', e)
+      }
+    }
+    loadCount()
+  }, [])
+
+  // Save count to storage whenever it changes
+  useEffect(() => {
+    const saveCount = async() => {
+      try{
+        await AsyncStorage.setItem('@counter_value', count.toString())
+      }
+      catch(e){
+        console.error('Failed to save count.', e)
+      }
+    }
+    saveCount()
+  }, [count])
+  
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Count</Text>
