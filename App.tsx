@@ -8,13 +8,19 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.heading}>Count</Text>
       <Text style={styles.counterText}>{count}</Text>
-
-      <Pressable
-      style={styles.button}
-      onPress={() => setCount(count + 1)}
-      >
+      <View style={styles.buttonRow}>
+      <Pressable style={styles.button} onPress={() => setCount(count + 1)}>
         <Text style={styles.buttonText}>Increment</Text>
       </Pressable>
+
+      <Pressable style={styles.button} onPress={() => setCount(count - 1)}>
+        <Text style={styles.buttonText}>Decrement</Text>
+      </Pressable>
+
+      <Pressable style={styles.button} onPress={() => setCount(0)}>
+        <Text style={styles.buttonText}>Reset</Text>
+      </Pressable>
+      </View>
     </View>
   );
 }
@@ -43,5 +49,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '80%',
+    marginTop: 20
   }
 });
