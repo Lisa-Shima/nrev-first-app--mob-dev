@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Text, View, Pressable, StyleSheet } from 'react-native'
+import { Text, View, Pressable, StyleSheet, TextInput, Alert, Platform } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native'
@@ -10,6 +10,15 @@ import * as Haptics from 'expo-haptics'
 type RootStackParamList = {
   Home: undefined;
   Settings: { count: number };
+}
+
+function showAlert (title: string, message: string){
+  if(Platform.OS === 'web'){
+    window.alert(`${title}\n\n${message}`)
+  }
+  else{
+    Alert.alert(title, message)
+  }
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
@@ -31,6 +40,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>
 
 function HomeScreen({ navigation }: Props){
   const [count, setCount] = useState(0)
+  const [input, setInputValue] = useState('')
 
   // load and save
   useEffect(() => {
@@ -48,6 +58,32 @@ function HomeScreen({ navigation }: Props){
     <View style={styles.container}>
       <Text style={styles.heading}>Home: Counter</Text>
       <Text style={styles.counterText}>{count}</Text>
+
+      <TextInput
+      style={styles.input}
+      keyboardType='numeric'
+      placeholder='Enter a number'
+      value={input}
+      onChangeText={setInputValue}
+      />
+
+      <Pressable
+      style={styles.button}
+      onPress={() => {
+        const parsed = parseInt(input, 10)
+
+        if(!isNaN(parsed)){
+          setCount(parsed)
+          setInputValue('')
+        }
+        else{
+          // Alert.alert('Invalid input', 'Please enter a valid number')
+          showAlert('Invalid input', 'Please enter a valid number')
+        }
+      }}
+      >
+        <Text style={styles.buttonText}>Set Count</Text>
+      </Pressable>
 
       <View style={styles.buttonRow}>
         <Pressable style={styles.button} onPress={async () =>{
@@ -129,5 +165,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '80%',
     marginTop: 20
+  },
+  input: {
+    height: 40,
+    width: '80%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginVertical: 10
   }
 });
