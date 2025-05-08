@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import * as Haptics from 'expo-haptics'
 
 // Define the params each screen expects
 type RootStackParamList = {
@@ -49,15 +50,24 @@ function HomeScreen({ navigation }: Props){
       <Text style={styles.counterText}>{count}</Text>
 
       <View style={styles.buttonRow}>
-        <Pressable style={styles.button} onPress={() => setCount(count + 1)}>
+        <Pressable style={styles.button} onPress={async () =>{
+          await Haptics.selectionAsync()
+          setCount(count + 1)
+          }}>
           <Text style={styles.buttonText}>+</Text>
         </Pressable>
 
-        <Pressable style={styles.button} onPress={() => setCount(count - 1)}>
+        <Pressable style={styles.button} onPress={async () =>{
+          await Haptics.selectionAsync()
+          setCount(count - 1)
+          }}>
           <Text style={styles.buttonText}>–</Text>
         </Pressable>
 
-        <Pressable style={styles.button} onPress={() => setCount(0)}>
+        <Pressable style={styles.button} onPress={async () =>{
+          await Haptics.selectionAsync()
+          setCount(0 )
+          }}>
           <Text style={styles.buttonText}>Reset</Text>
         </Pressable>
       </View>
