@@ -1,60 +1,93 @@
 import React, { useState, useEffect } from 'react'
-import { StatusBar } from 'expo-status-bar';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Text, View, Pressable, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-export default function App() {
+// Define the params each screen expects
+type RootStackParamList = {
+  Home: undefined;
+  Settings: { count: number };
+}
+
+const Stack = createNativeStackNavigator<RootStackParamList>()
+
+export default function App(){
+  return(
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='Home'>
+        {/* Home screen: our counter */}
+        <Stack.Screen name='Home' component={HomeScreen} />
+        {/* Setting screen: shows the counter */}
+        <Stack.Screen name='Settings' component={SettingsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>
+
+function HomeScreen({ navigation }: Props){
   const [count, setCount] = useState(0)
 
-  // Load count from storage once when the app starts
+  // load and save
   useEffect(() => {
-    const loadCount = async() => {
-      try{
-        const saved = await AsyncStorage.getItem('@counter_value')
-        if(saved !== null){
-          setCount(parseInt(saved, 10))
-        }
-      }
-      catch(e){
-        console.error('Failed to load count.', e)
-      }
-    }
-    loadCount()
+    (async () => {
+      const saved = await AsyncStorage.getItem('@counter_value')
+      if(saved !== null) setCount(Number(saved))
+    })()
   }, [])
 
-  // Save count to storage whenever it changes
   useEffect(() => {
-    const saveCount = async() => {
-      try{
-        await AsyncStorage.setItem('@counter_value', count.toString())
-      }
-      catch(e){
-        console.error('Failed to save count.', e)
-      }
-    }
-    saveCount()
+    AsyncStorage.setItem('@counter_value', count.toString())
   }, [count])
-  
-  return (
+
+  return(
     <View style={styles.container}>
-      <Text style={styles.heading}>Count</Text>
+      <Text style={styles.heading}>Home: Counter</Text>
       <Text style={styles.counterText}>{count}</Text>
+
       <View style={styles.buttonRow}>
-      <Pressable style={styles.button} onPress={() => setCount(count + 1)}>
-        <Text style={styles.buttonText}>Increment</Text>
-      </Pressable>
+        <Pressable style={styles.button} onPress={() => setCount(count + 1)}>
+          <Text style={styles.buttonText}>+</Text>
+        </Pressable>
 
-      <Pressable style={styles.button} onPress={() => setCount(count - 1)}>
-        <Text style={styles.buttonText}>Decrement</Text>
-      </Pressable>
+        <Pressable style={styles.button} onPress={() => setCount(count - 1)}>
+          <Text style={styles.buttonText}>–</Text>
+        </Pressable>
 
-      <Pressable style={styles.button} onPress={() => setCount(0)}>
-        <Text style={styles.buttonText}>Reset</Text>
-      </Pressable>
+        <Pressable style={styles.button} onPress={() => setCount(0)}>
+          <Text style={styles.buttonText}>Reset</Text>
+        </Pressable>
       </View>
+
+      {/* Navigating to settings passing the count */}
+      <Pressable style={[styles.button, {marginTop: 30}]} onPress={() => navigation.navigate('Settings', { count })}>
+        <Text style={styles.buttonText}>Go to Settings</Text>
+      </Pressable>
+
     </View>
-  );
+  )
 }
+
+type SettingsProps = NativeStackScreenProps<RootStackParamList, 'Settings'>
+
+function SettingsScreen({ route, navigation } : SettingsProps){
+  const { count } = route.params
+
+  return(
+    <View style={styles.container}>
+      <Text style={styles.heading}>Settings</Text>
+      <Text style={styles.counterText}>Current count: {count}</Text>
+
+      <Pressable style={[styles.button, {marginTop: 30}]} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>Go Back</Text>
+      </Pressable>
+    </View>
+  )
+}
+
 
 const styles = StyleSheet.create({
   container: {
